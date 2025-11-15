@@ -37,8 +37,8 @@ export default defineConfig((/* ctx */) => {
         node: 'node20',
       },
 
-      vueRouterMode: 'history', // available values: 'hash', 'history'
-      vueRouterBase: '/tiendaCelulares/',
+      vueRouterMode: 'hash', // available values: 'hash', 'history'
+      // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
 
