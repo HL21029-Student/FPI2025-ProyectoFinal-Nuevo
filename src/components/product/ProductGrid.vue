@@ -8,12 +8,12 @@
       </div>
     </div>
 
-    <!-- Grid de productos -->
+    <!-- Grid de productos - 2 columnas en móvil -->
     <div v-else class="row q-col-gutter-lg q-pa-lg">
       <div
         v-for="product in paginatedProducts"
         :key="product.id"
-        class="col-12 col-sm-6 col-md-4 col-lg-3"
+        class="col-6 col-sm-6 col-md-4 col-lg-3"
       >
         <q-card class="base-card product-card cursor-pointer" @click="goToProduct(product.id)">
           <q-img :src="product.image" ratio="1" class="bg-grey-3 product-image">
@@ -27,40 +27,21 @@
             </div>
           </q-img>
 
-          <q-card-section class="q-pb-none">
-            <div class="text-h6 text-weight-bold ellipsis-2-lines">{{ product.name }}</div>
-            <div class="text-caption text-grey-7 q-mt-sm">
-              <div class="info-row">
-                <q-icon name="phone_iphone" size="xs" color="primary" />
-                <span>{{ product.screen }}</span>
-              </div>
-              <div class="info-row">
-                <q-icon name="storage" size="xs" color="orange" />
-                <span>{{ product.memory }}</span>
-              </div>
-              <div class="info-row">
-                <q-icon name="business" size="xs" color="purple" />
-                <span>{{ product.brand }}</span>
-              </div>
-            </div>
+          <q-card-section class="q-pb-xs">
+            <div class="text-subtitle1 text-weight-bold ellipsis-2-lines">{{ product.name }}</div>
+            <div class="text-h6 text-primary text-weight-bold q-mt-sm">${{ product.price }}</div>
           </q-card-section>
 
-          <q-separator class="q-mx-md" />
-
-          <q-card-section class="row items-center">
-            <div class="text-h5 text-primary text-weight-bold">${{ product.price }}</div>
-            <q-space />
+          <q-card-section class="q-pt-none">
             <q-btn
-              round
               unelevated
               color="primary"
               icon="add_shopping_cart"
-              size="sm"
+              class="full-width"
               @click.stop="addToCart(product)"
-              class="add-cart-btn"
-            >
-              <q-tooltip>Agregar al carrito</q-tooltip>
-            </q-btn>
+              label="Agregar"
+              size="sm"
+            />
           </q-card-section>
         </q-card>
       </div>
@@ -300,5 +281,16 @@ export default defineComponent({
 .pagination-card {
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.base-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.base-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 </style>
