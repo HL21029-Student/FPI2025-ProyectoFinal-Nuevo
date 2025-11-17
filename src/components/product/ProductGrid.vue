@@ -43,41 +43,42 @@
               size="sm"
             />
           </q-card-section>
-
-          <!-- Botón agregar al carrito -->
-          <q-btn
-            round
-            unelevated
-            color="primary"
-            icon="add_shopping_cart"
-            size="sm"
-            class="absolute-bottom-right q-ma-xs add-cart-btn-mobile"
-            @click.stop="addToCart(product)"
-          />
         </q-card>
       </div>
     </div>
 
     <!-- Sin resultados -->
     <div v-if="!loading && filteredProducts.length === 0" class="text-center q-pa-xl">
-      <q-icon name="search_off" size="4rem" color="grey-4" />
-      <div class="text-h6 text-grey-7 q-mt-md">No se encontraron productos</div>
+      <q-icon name="search_off" size="6rem" color="grey-5" />
+      <div class="text-h5 text-grey-7 q-mt-md">No se encontraron productos</div>
       <div class="text-body2 text-grey-6 q-mt-sm">Intenta ajustar los filtros de búsqueda</div>
     </div>
 
-    <!-- Paginación MÓVIL -->
-    <div class="row justify-center q-mt-lg q-mb-xl" v-if="!loading && filteredProducts.length > 0">
-      <q-pagination
-        v-model="currentPage"
-        :max="totalPages"
-        direction-links
-        flat
-        color="grey"
-        active-color="primary"
-        :max-pages="6"
-        boundary-links
-        class="pagination-mobile"
-      />
+    <!-- Paginación -->
+    <div
+      class="row q-mt-xl q-mb-lg items-center justify-center"
+      v-if="!loading && filteredProducts.length > 0"
+    >
+      <div class="col-auto">
+        <q-card flat bordered class="pagination-card">
+          <q-card-section class="q-pa-md">
+            <q-pagination
+              v-model="currentPage"
+              :max="totalPages"
+              :max-pages="7"
+              direction-links
+              boundary-links
+              color="primary"
+              active-design="unelevated"
+              active-color="primary"
+              active-text-color="white"
+            />
+            <div class="text-center q-mt-sm text-grey-7">
+              Mostrando {{ paginatedProducts.length }} de {{ filteredProducts.length }} productos
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
     </div>
   </div>
 </template>
@@ -132,51 +133,42 @@ export default defineComponent({
     const { addToCart } = useCart()
 
     const currentPage = ref(1)
-    const itemsPerPage = 8 // 4 filas de 2 productos = 8 por página
+    const itemsPerPage = 12
 
     const filteredProducts = computed(() => {
       let filtered = [...props.products]
 
-      // Filtro de búsqueda
       if (props.searchQuery.trim()) {
         const query = props.searchQuery.toLowerCase()
         filtered = filtered.filter(
           (p) =>
             p.name.toLowerCase().includes(query) ||
             p.brand.toLowerCase().includes(query) ||
-            (p.screen && p.screen.toLowerCase().includes(query)) ||
-            (p.memory && p.memory.toLowerCase().includes(query)),
+            p.screen.toLowerCase().includes(query) ||
+            p.memory.toLowerCase().includes(query),
         )
       }
 
-      // Filtro productos nuevos
       if (props.showNewProducts) {
         filtered = filtered.filter((p) => p.isNew)
       }
 
-      // Filtro marcas
       if (props.selectedBrands.length) {
         filtered = filtered.filter((p) => props.selectedBrands.includes(p.brand))
       }
 
-      // Filtro sistema operativo
       if (props.selectedOS.length) {
         filtered = filtered.filter((p) => props.selectedOS.includes(p.os))
       }
 
-      // Filtro pantallas
       if (props.selectedScreens.length) {
-        filtered = filtered.filter((p) =>
-          props.selectedScreens.some((screen) => p.screen && p.screen.includes(screen)),
-        )
+        filtered = filtered.filter((p) => props.selectedScreens.includes(p.screen))
       }
 
-      // Filtro precio
       filtered = filtered.filter(
         (p) => p.price >= props.priceRange.min && p.price <= props.priceRange.max,
       )
 
-      // Ordenamiento
       switch (props.sortBy) {
         case 'Precio: Menor a Mayor':
           filtered.sort((a, b) => a.price - b.price)
@@ -240,70 +232,55 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.product-card-mobile {
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  border: 1px solid #e0e0e0;
+.product-image {
+  position: relative;
+  overflow: hidden;
 }
 
-.product-card-mobile:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.product-overlay {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  padding: 12px;
 }
 
-.product-image-mobile {
-  border-radius: 12px 12px 0 0;
+.product-card:hover .product-overlay {
+  opacity: 1;
 }
 
-.new-badge-mobile {
-  font-size: 10px;
-  padding: 4px 8px;
+.new-badge {
+  font-weight: bold;
+  padding: 6px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.product-title {
-  min-height: 2.8em;
-  line-height: 1.4;
-}
-
-.product-price {
-  font-size: 1.1rem;
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0;
 }
 
 .ellipsis-2-lines {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  min-height: 3em;
 }
 
-.add-cart-btn-mobile {
-  transform: scale(0.9);
+.add-cart-btn {
+  transition: all 0.3s ease;
 }
 
-.pagination-mobile {
-  font-size: 0.9rem;
+.add-cart-btn:hover {
+  transform: scale(1.1);
 }
 
-/* Tablets */
-@media (min-width: 600px) {
-  .product-card-mobile {
-    margin-bottom: 16px;
-  }
-}
-
-/* Escritorio */
-@media (min-width: 1024px) {
-  .product-card-mobile {
-    margin-bottom: 24px;
-  }
-
-  .product-title {
-    font-size: 1rem;
-  }
-
-  .product-price {
-    font-size: 1.25rem;
-  }
+.pagination-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
 .base-card {

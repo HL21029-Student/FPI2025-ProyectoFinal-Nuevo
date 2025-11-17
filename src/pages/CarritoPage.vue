@@ -1,7 +1,7 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <!-- HEADER MÓVIL SIMPLIFICADO -->
-    <q-header elevated class="bg-primary text-white">
+    <!-- Header / Navbar -->
+    <q-header elevated class="bg-gradient">
       <q-toolbar>
         <!-- Botón de volver en móvil -->
         <q-btn
@@ -38,7 +38,7 @@
       </q-toolbar>
     </q-header>
 
-    <!-- CONTENIDO PRINCIPAL -->
+    <!-- Contenido principal -->
     <q-page-container>
       <q-page class="page-gradient q-pa-md">
         <!-- Título con animación -->
@@ -68,23 +68,25 @@
         </div>
 
         <!-- Carrito vacío -->
-        <div v-if="cartItems.length === 0" class="empty-cart-mobile">
-          <div class="text-center q-pa-xl">
-            <q-icon name="shopping_cart" size="6rem" color="grey-4" class="q-mb-lg" />
-            <div class="text-h5 text-weight-bold text-grey-7 q-mb-md">Tu carrito está vacío</div>
-            <div class="text-body1 text-grey-6 q-mb-xl">
-              ¡Descubre nuestros productos y comienza a comprar!
-            </div>
-            <q-btn
-              color="primary"
-              label="Explorar Productos"
-              @click="goToHome"
-              unelevated
-              size="lg"
-              icon="storefront"
-              class="explore-btn-mobile"
-            />
-          </div>
+        <div v-if="cartItems.length === 0" class="empty-cart">
+          <q-card class="empty-cart-card">
+            <q-card-section class="text-center q-pa-xl">
+              <q-icon name="shopping_cart" size="8rem" color="grey-4" class="q-mb-lg" />
+              <div class="text-h4 text-weight-bold text-grey-7 q-mb-md">Tu carrito está vacío</div>
+              <div class="text-body1 text-grey-6 q-mb-xl">
+                ¡Descubre nuestros productos y comienza a comprar!
+              </div>
+              <q-btn
+                color="primary"
+                label="Explorar Productos"
+                @click="goToHome"
+                unelevated
+                size="lg"
+                icon="storefront"
+                class="explore-btn"
+              />
+            </q-card-section>
+          </q-card>
         </div>
 
         <!-- Items del carrito -->
@@ -110,12 +112,11 @@
                         class="rounded-borders product-thumb"
                       >
                         <div v-if="item.isNew" class="absolute-top-left q-ma-xs">
-                          <q-badge color="green" label="NUEVO" class="text-caption" />
+                          <q-badge color="green" label="NUEVO" class="text-weight-bold" />
                         </div>
                       </q-img>
                     </div>
 
-                    <!-- Información del producto -->
                     <div class="col">
                       <div
                         :class="$q.screen.lt.md ? 'text-subtitle1' : 'text-h6'"
@@ -155,37 +156,36 @@
                       >
                         ${{ item.price.toFixed(2) }}
                       </div>
-                    </div>
-
-                    <!-- Botón eliminar -->
-                    <div class="col-auto">
                       <q-btn
+                        unelevated
                         round
-                        flat
                         color="negative"
                         icon="delete"
                         :size="$q.screen.lt.md ? 'sm' : 'md'"
                         @click="removeFromCart(index)"
-                        class="remove-btn-mobile"
+                        class="remove-btn"
                       >
-                        <q-tooltip>Eliminar</q-tooltip>
+                        <q-tooltip>Remover del carrito</q-tooltip>
                       </q-btn>
                     </div>
-                  </div>
+                  </q-card-section>
+                </q-card>
+              </transition-group>
+
+              <!-- Botón para seguir comprando -->
+              <q-card flat bordered class="continue-shopping-card">
+                <q-card-section class="text-center q-pa-md">
+                  <q-btn
+                    outline
+                    color="primary"
+                    label="Continuar Comprando"
+                    icon="arrow_back"
+                    @click="goToHome"
+                    size="md"
+                  />
                 </q-card-section>
               </q-card>
-            </transition-group>
-
-            <!-- Botón seguir comprando -->
-            <q-btn
-              outline
-              color="primary"
-              label="Seguir Comprando"
-              icon="arrow_back"
-              @click="goToHome"
-              class="full-width q-mt-md"
-            />
-          </div>
+            </div>
 
             <!-- Resumen del pedido -->
             <div :class="$q.screen.lt.md ? 'col-12' : 'col-12 col-lg-4'">
@@ -195,88 +195,123 @@
                     <q-icon name="receipt" class="q-mr-sm" />
                     Resumen del Pedido
                   </div>
-                  <div class="text-h6 text-weight-medium">${{ subtotal.toFixed(2) }}</div>
-                </div>
+                </q-card-section>
 
-                <div class="resumen-row q-mb-md">
-                  <div class="text-body1">Envío</div>
-                  <div class="text-h6 text-weight-medium">
-                    <span v-if="envio === 0" class="text-positive">
-                      <q-icon name="local_shipping" />
-                      Gratis
-                    </span>
-                    <span v-else>${{ envio.toFixed(2) }}</span>
+                <q-separator />
+
+                <q-card-section class="q-pa-lg">
+                  <div class="summary-row">
+                    <div class="text-body1">
+                      Subtotal ({{ totalItems }} {{ totalItems === 1 ? 'producto' : 'productos' }})
+                    </div>
+                    <div class="text-h6 text-weight-medium">${{ subtotal.toFixed(2) }}</div>
                   </div>
-                </div>
 
-                <q-separator class="q-my-md" />
-
-                <div class="resumen-row total-row">
-                  <div class="text-h6 text-weight-bold">Total</div>
-                  <div class="text-h5 text-primary text-weight-bold">${{ total.toFixed(2) }}</div>
-                </div>
-
-                <q-btn
-                  color="primary"
-                  label="Proceder al Pago"
-                  class="full-width q-mt-lg checkout-btn-mobile"
-                  unelevated
-                  size="lg"
-                  icon="payment"
-                  @click="procederPago"
-                />
-
-                <q-btn
-                  outline
-                  color="negative"
-                  label="Vaciar Carrito"
-                  class="full-width q-mt-sm"
-                  icon="delete_sweep"
-                  @click="vaciarCarrito"
-                />
-              </q-card-section>
-
-              <!-- Información adicional -->
-              <q-card-section class="bg-grey-2">
-                <div class="text-caption text-grey-7">
-                  <div class="row items-center q-mb-xs">
-                    <q-icon name="verified_user" color="positive" size="sm" class="q-mr-xs" />
-                    <span>Compra 100% segura</span>
+                  <div class="summary-row">
+                    <div class="text-body1">Envío</div>
+                    <div class="text-h6 text-weight-medium">
+                      <span v-if="envio === 0" class="text-positive">
+                        <q-icon name="local_shipping" />
+                        Gratis
+                      </span>
+                      <span v-else>${{ envio.toFixed(2) }}</span>
+                    </div>
                   </div>
-                  <div class="row items-center q-mb-xs">
-                    <q-icon name="local_shipping" color="primary" size="sm" class="q-mr-xs" />
-                    <span>Envío gratis en compras mayores a $500</span>
+
+                  <q-separator class="q-my-lg" />
+
+                  <div class="summary-row total-row">
+                    <div class="text-h5 text-weight-bold">Total</div>
+                    <div class="text-h4 text-primary text-weight-bold">${{ total.toFixed(2) }}</div>
                   </div>
-                  <div class="row items-center">
-                    <q-icon name="assignment_return" color="orange" size="sm" class="q-mr-xs" />
-                    <span>30 días para devoluciones</span>
+
+                  <q-btn
+                    color="primary"
+                    label="Proceder al Pago"
+                    class="full-width q-mt-xl checkout-btn"
+                    unelevated
+                    size="lg"
+                    icon="payment"
+                    @click="procederPago"
+                  />
+
+                  <q-btn
+                    outline
+                    color="negative"
+                    label="Vaciar Carrito"
+                    class="full-width q-mt-md"
+                    icon="delete_sweep"
+                    @click="vaciarCarrito"
+                  />
+                </q-card-section>
+
+                <!-- Información adicional -->
+                <q-card-section class="bg-grey-1">
+                  <div class="text-caption text-grey-7">
+                    <div class="q-mb-sm">
+                      <q-icon name="verified_user" color="positive" size="sm" />
+                      Compra 100% segura
+                    </div>
+                    <div class="q-mb-sm">
+                      <q-icon name="local_shipping" color="primary" size="sm" />
+                      Envío gratis en compras mayores a $500
+                    </div>
+                    <div>
+                      <q-icon name="assignment_return" color="orange" size="sm" />
+                      30 días para devoluciones
+                    </div>
                   </div>
-                </div>
-              </q-card-section>
-            </q-card>
+                </q-card-section>
+              </q-card>
+            </div>
           </div>
         </div>
       </q-page>
     </q-page-container>
+
+    <!-- Diálogo para crear producto -->
+    <CrearProductoDialog v-model="showCrearProductoDialog" @productoCreado="onProductoCreado" />
   </q-layout>
 </template>
 
 <script>
-//import { ref } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { useCart } from '../composables/useCart'
+import CrearProductoDialog from '../components/CrearProductoDialog.vue'
 
 export default {
   name: 'CarritoPage',
+
+  components: {
+    CrearProductoDialog,
+  },
 
   setup() {
     const router = useRouter()
     const $q = useQuasar()
     const { cartItems, removeFromCart, clearCart, subtotal, envio, total, totalItems } = useCart()
+    const showCrearProductoDialog = ref(false)
 
     const goToHome = () => {
       router.push('/')
+    }
+
+    const goToStats = () => {
+      router.push('/estadisticas')
+    }
+
+    const crearProducto = () => {
+      showCrearProductoDialog.value = true
+    }
+
+    const onProductoCreado = () => {
+      $q.notify({
+        message: 'Producto creado. La lista principal ha sido actualizada.',
+        color: 'info',
+        position: 'top',
+      })
     }
 
     const vaciarCarrito = () => {
@@ -308,25 +343,13 @@ export default {
 
     const procederPago = () => {
       $q.notify({
-        message: '🎉 Redirigiendo al pago...',
+        message: '🎉 Procesando tu pedido...',
         caption: 'Funcionalidad de pago en desarrollo',
         color: 'warning',
         icon: 'payment',
         position: 'top',
         timeout: 3000,
       })
-
-      // Simular redirección a pasarela de pago
-      setTimeout(() => {
-        $q.notify({
-          message: 'Pedido procesado exitosamente',
-          color: 'positive',
-          icon: 'check_circle',
-          position: 'top',
-          timeout: 4000,
-        })
-        clearCart()
-      }, 2000)
     }
 
     return {
@@ -335,9 +358,13 @@ export default {
       envio,
       total,
       totalItems,
+      showCrearProductoDialog,
       goToHome,
+      goToStats,
+      crearProducto,
       removeFromCart,
       vaciarCarrito,
+      onProductoCreado,
       procederPago,
     }
   },
@@ -345,108 +372,82 @@ export default {
 </script>
 
 <style scoped>
-.carrito-mobile {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  min-height: 100vh;
-}
-
-.empty-cart-mobile {
+.empty-cart {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 70vh;
-  padding: 20px;
+  min-height: 60vh;
 }
 
-.explore-btn-mobile {
+.empty-cart-card {
+  max-width: 600px;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  background: white;
+}
+
+.explore-btn {
   font-size: 16px;
   padding: 12px 40px;
   border-radius: 30px;
   transition: all 0.3s ease;
 }
 
-.explore-btn-mobile:hover {
+.explore-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
 }
 
-.carrito-contenido {
-  padding-bottom: 320px; /* Espacio para el resumen fijo */
-}
-
-.productos-lista {
-  background: white;
-  border-radius: 0 0 20px 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.cart-item-mobile {
-  border-radius: 12px;
-  border-left: 4px solid #1976d2;
-  transition: all 0.3s ease;
-}
-
-.cart-item-mobile:hover {
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.product-thumb-mobile {
+.product-thumb {
   border: 2px solid #e0e0e0;
   transition: all 0.3s ease;
 }
 
-.cart-item-mobile:hover .product-thumb-mobile {
-  border-color: #1976d2;
+.cart-item-card:hover .product-thumb {
+  border-color: #667eea;
 }
 
-.remove-btn-mobile {
+.product-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.remove-btn {
   transition: all 0.3s ease;
 }
 
-.remove-btn-mobile:hover {
+.remove-btn:hover {
   transform: scale(1.1);
 }
 
-.ellipsis-2-lines {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  line-height: 1.4;
+.continue-shopping-card {
+  border-radius: 16px;
+  border: 2px dashed #667eea;
+  background: rgba(102, 126, 234, 0.05);
 }
 
-/* RESUMEN FIJO EN PARTE INFERIOR */
-.resumen-fijo {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
+.sticky-top {
+  position: sticky;
+  top: 80px;
 }
 
-.resumen-card-mobile {
-  border-radius: 20px 20px 0 0;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-  max-height: 60vh;
-  overflow-y: auto;
-}
-
-.resumen-row {
+.summary-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
+  padding: 12px 0;
 }
 
 .total-row {
-  background: linear-gradient(135deg, rgba(25, 118, 210, 0.1), rgba(33, 150, 243, 0.1));
-  padding: 16px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  padding: 20px;
   border-radius: 12px;
-  margin: 8px -8px;
+  margin: 0 -8px;
 }
 
-.checkout-btn-mobile {
+.checkout-btn {
   font-size: 16px;
   font-weight: bold;
   border-radius: 12px;
@@ -454,7 +455,7 @@ export default {
   transition: all 0.3s ease;
 }
 
-.checkout-btn-mobile:hover {
+.checkout-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
 }
@@ -479,7 +480,7 @@ export default {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* Animaciones para items del carrito */
+/* Animaciones de transición para items del carrito */
 .cart-item-enter-active,
 .cart-item-leave-active {
   transition: all 0.5s ease;

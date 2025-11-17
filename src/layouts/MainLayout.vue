@@ -1,7 +1,7 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <!-- HEADER MÓVIL SIMPLIFICADO -->
-    <q-header elevated class="bg-primary text-white">
+    <!-- Header / Navbar -->
+    <q-header elevated class="bg-gradient">
       <q-toolbar>
         <!-- Menú hamburguesa para móvil -->
         <q-btn
@@ -27,12 +27,11 @@
           standout
           v-model="searchQuery"
           placeholder="Buscar productos..."
-          class="full-width"
-          bg-color="white"
-          color="primary"
+          class="q-mx-md search-input"
+          style="width: 350px"
         >
-          <template v-slot:append>
-            <q-icon name="search" color="primary" />
+          <template v-slot:prepend>
+            <q-icon name="search" />
           </template>
         </q-input>
 
@@ -137,41 +136,40 @@
         </div>
       </div>
 
-          <!-- Filtro Estado -->
-          <q-list padding>
-            <q-item-label header class="text-weight-bold text-grey-8">
-              <q-icon name="new_releases" class="q-mr-xs" />
-              Estado
-            </q-item-label>
-            <q-item>
-              <q-item-section>
-                <q-toggle v-model="showNewProducts" label="Solo productos nuevos" color="primary" />
-              </q-item-section>
-            </q-item>
-          </q-list>
+      <q-list padding>
+        <q-item class="filter-item">
+          <q-item-section>
+            <q-toggle
+              v-model="showNewProducts"
+              label="Productos Nuevos"
+              color="light-green-4"
+              class="text-weight-medium"
+            />
+          </q-item-section>
+        </q-item>
 
-          <q-separator class="q-my-md" />
+        <q-separator class="q-my-md" />
 
         <!-- Filtro Marca -->
         <BrandFilter v-model="selectedBrands" :brands="brands" />
 
-          <q-separator class="q-my-md" />
+        <q-separator class="q-my-md" />
 
         <!-- Filtro Sistema -->
         <OSFilter v-model="selectedOS" :operatingSystems="operatingSystems" />
 
-          <q-separator class="q-my-md" />
+        <q-separator class="q-my-md" />
 
         <!-- Filtro Pantalla -->
         <ScreenSizeFilter v-model="selectedScreens" :screenSizes="screenSizes" />
       </q-list>
     </q-drawer>
 
-    <!-- CONTENIDO PRINCIPAL -->
+    <!-- Contenido principal -->
     <q-page-container>
-      <q-page class="bg-grey-1">
-        <!-- CONTROLES SUPERIORES SOLO EN ESCRITORIO -->
-        <div class="controls-bar q-pa-md gt-sm">
+      <q-page class="page-gradient">
+        <!-- Controles superiores -->
+        <div class="controls-bar q-pa-md">
           <div class="row q-mb-md items-center">
             <!-- Rango de precio -->
             <div
@@ -221,22 +219,7 @@
           </div>
         </div>
 
-        <!-- CONTROLES MÓVILES -->
-        <div class="row items-center q-pa-md lt-md">
-          <q-select
-            v-model="sortBy"
-            :options="sortOptions"
-            label="Ordenar por"
-            outlined
-            dense
-            class="col-8"
-            color="primary"
-          />
-          <q-space />
-          <div class="text-caption text-grey">{{ filteredProducts.length }} productos</div>
-        </div>
-
-        <!-- PRODUCT GRID -->
+        <!-- Product Grid Component -->
         <ProductGrid
           :products="products"
           :loading="loading"
@@ -251,13 +234,13 @@
       </q-page>
     </q-page-container>
 
-    <!-- Diálogo para crear producto (solo escritorio) -->
+    <!-- Diálogo para crear producto -->
     <CrearProductoDialog v-model="showCrearProductoDialog" @productoCreado="cargarProductos" />
   </q-layout>
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { useCart } from '../composables/useCart'
@@ -292,7 +275,14 @@ export default {
     // Filtros
     const brands = ['Samsung', 'Apple', 'Xiaomi', 'Honor', 'Motorola', 'OnePlus', 'Google']
     const operatingSystems = ['Android', 'iOS']
-    const screenSizes = ['6.7"', '6.8"', '6.73"', '6.82"', '6.5"', '6.0"']
+    const screenSizes = [
+      '6.7 pulgadas',
+      '6.8 pulgadas',
+      '6.73 pulgadas',
+      '6.82 pulgadas',
+      '6.5 pulgadas',
+      '6.0 pulgadas',
+    ]
 
     const selectedBrands = ref([])
     const selectedOS = ref([])
@@ -307,10 +297,11 @@ export default {
       'Fecha: Más Antiguo',
     ]
 
-    // Productos
+    // Productos de Firebase
     const products = ref([])
     const loading = ref(true)
 
+    // Cargar productos de Firebase
     const cargarProductos = async () => {
       try {
         loading.value = true
@@ -333,23 +324,17 @@ export default {
           message: 'Error al cargar los productos',
           color: 'negative',
           position: 'top',
+          icon: 'error',
         })
       } finally {
         loading.value = false
       }
     }
 
+    // Cargar productos al montar
     onMounted(() => {
       cargarProductos()
     })
-
-    const toggleLeftDrawer = () => {
-      leftDrawerOpen.value = !leftDrawerOpen.value
-    }
-
-    const toggleRightDrawer = () => {
-      rightDrawerOpen.value = !rightDrawerOpen.value
-    }
 
     const goToHome = () => {
       if ($q.screen.lt.md) {
@@ -379,6 +364,7 @@ export default {
       router.push('/carrito')
     }
 
+    // Diálogo para crear producto
     const showCrearProductoDialog = ref(false)
 
     const crearProducto = () => {
@@ -387,10 +373,6 @@ export default {
       }
       showCrearProductoDialog.value = true
     }
-
-    const filteredProducts = computed(() => {
-      return products.value // Filtrado se hace en ProductGrid
-    })
 
     return {
       leftDrawerOpen,
@@ -422,13 +404,29 @@ export default {
 
 <style scoped>
 .controls-bar {
-  background: rgba(255, 255, 255, 0.9);
-  border-bottom: 1px solid #e0e0e0;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .price-range-card,
 .sort-card {
   border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.filter-item {
+  transition: background-color 0.2s ease;
+  border-radius: 8px;
+  margin: 4px 8px;
+}
+
+.filter-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.search-input {
+  border-radius: 20px;
 }
 
 .bg-gradient {
