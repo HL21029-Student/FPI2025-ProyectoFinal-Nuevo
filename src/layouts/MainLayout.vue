@@ -3,22 +3,26 @@
     <!-- HEADER MÓVIL SIMPLIFICADO -->
     <q-header elevated class="bg-primary text-white">
       <q-toolbar>
-        <!-- Botón menú hamburguesa -->
-        <q-btn flat round dense icon="menu" @click="toggleLeftDrawer" />
+        <!-- Menú hamburguesa para móvil -->
+        <q-btn
+          v-if="$q.screen.lt.md"
+          flat
+          dense
+          round
+          icon="menu"
+          @click="leftDrawerOpen = !leftDrawerOpen"
+          class="q-mr-sm"
+        />
 
-        <q-toolbar-title class="text-center text-weight-bold"> Tienda CellPhone </q-toolbar-title>
+        <q-icon name="campaign" size="md" class="q-mr-sm" />
+        <q-toolbar-title class="text-h6 text-weight-bold cursor-pointer" @click="goToHome">
+          Tienda CellPhone
+        </q-toolbar-title>
 
-        <!-- Botones esenciales -->
-        <q-btn flat round dense icon="shopping_cart" @click="goToCart" class="q-mr-xs">
-          <q-badge v-if="totalItems > 0" color="red" floating>{{ totalItems }}</q-badge>
-        </q-btn>
-
-        <q-btn flat round dense icon="add" @click="crearProducto" />
-      </q-toolbar>
-
-      <!-- BARRA DE BÚSQUEDA -->
-      <q-toolbar class="q-pt-none">
+        <!-- Barra de búsqueda - Ocultar en móvil -->
         <q-input
+          v-if="$q.screen.gt.sm"
+          dark
           dense
           standout
           v-model="searchQuery"
@@ -32,65 +36,106 @@
           </template>
         </q-input>
 
-        <!-- BOTÓN FILTROS MÓVIL -->
-        <q-btn flat icon="filter_list" @click="toggleRightDrawer" class="q-ml-sm" />
+        <!-- Botones de navegación - Ocultar en móvil -->
+        <div v-if="$q.screen.gt.sm">
+          <q-btn outline label="Inicio" class="q-mx-xs" @click="goToHome" />
+          <q-btn outline label="Estadísticas" class="q-mx-xs" @click="goToStats" />
+
+          <q-btn
+            round
+            color="white"
+            text-color="primary"
+            icon="add"
+            class="q-mx-md"
+            @click="crearProducto"
+          >
+            <q-tooltip>Crear nuevo producto</q-tooltip>
+          </q-btn>
+        </div>
+
+        <q-btn flat round dense @click="goToCart" class="cart-btn">
+          <q-icon name="shopping_cart" size="md" />
+          <q-badge color="red" floating class="pulse-badge">{{ totalItems }}</q-badge>
+        </q-btn>
+
+        <!-- Botón de filtros para móvil -->
+        <q-btn
+          v-if="$q.screen.lt.md"
+          flat
+          dense
+          round
+          icon="filter_list"
+          @click="filterDrawerOpen = !filterDrawerOpen"
+          class="q-ml-sm"
+        />
       </q-toolbar>
     </q-header>
 
-    <!-- DRAWER DE NAVEGACIÓN IZQUIERDA -->
-    <q-drawer v-model="leftDrawerOpen" side="left" overlay bordered :width="280">
-      <q-scroll-area class="fit">
-        <q-list padding class="text-primary">
-          <q-item-label header class="text-weight-bold text-grey-8"> Navegación </q-item-label>
+    <!-- Drawer de navegación para móvil -->
+    <q-drawer
+      v-model="leftDrawerOpen"
+      side="left"
+      bordered
+      v-if="$q.screen.lt.md"
+      class="bg-grey-1"
+    >
+      <q-list padding>
+        <q-item-label header class="text-weight-bold text-grey-8"> Navegación </q-item-label>
 
-          <q-item clickable v-close-popup @click="goToHome">
-            <q-item-section avatar>
-              <q-icon name="home" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>Inicio</q-item-label>
-            </q-item-section>
-          </q-item>
+        <q-item clickable v-ripple @click="goToHome">
+          <q-item-section avatar>
+            <q-icon name="home" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Inicio</q-item-label>
+          </q-item-section>
+        </q-item>
 
-          <q-item clickable v-close-popup @click="crearProducto">
-            <q-item-section avatar>
-              <q-icon name="add" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>Nuevo anuncio</q-item-label>
-            </q-item-section>
-          </q-item>
+        <q-item clickable v-ripple @click="crearProducto">
+          <q-item-section avatar>
+            <q-icon name="add" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Nuevo anuncio</q-item-label>
+          </q-item-section>
+        </q-item>
 
-          <q-item clickable v-close-popup @click="goToCart">
-            <q-item-section avatar>
-              <q-icon name="shopping_cart" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>Carrito</q-item-label>
-              <q-badge v-if="totalItems > 0" color="primary" floating>{{ totalItems }}</q-badge>
-            </q-item-section>
-          </q-item>
+        <q-item clickable v-ripple @click="goToCart">
+          <q-item-section avatar>
+            <q-icon name="shopping_cart" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Carrito</q-item-label>
+            <q-item-label caption>{{ totalItems }} items</q-item-label>
+          </q-item-section>
+        </q-item>
 
-          <q-item clickable v-close-popup @click="goToStats">
-            <q-item-section avatar>
-              <q-icon name="bar_chart" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>Estadísticas</q-item-label>
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-scroll-area>
+        <q-item clickable v-ripple @click="goToStats">
+          <q-item-section avatar>
+            <q-icon name="bar_chart" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Estadísticas</q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
     </q-drawer>
 
-    <!-- DRAWER DE FILTROS DERECHA -->
-    <q-drawer v-model="rightDrawerOpen" side="right" overlay bordered :width="280">
-      <q-scroll-area class="fit">
-        <div class="q-pa-md">
-          <div class="text-h6 text-weight-bold text-primary q-mb-md">
-            <q-icon name="filter_list" class="q-mr-sm" />
-            Filtros
-          </div>
+    <!-- Sidebar izquierdo para desktop -->
+    <q-drawer
+      v-model="filterDrawerOpen"
+      :breakpoint="768"
+      show-if-above
+      :width="280"
+      bordered
+      class="sidebar-gradient"
+    >
+      <div class="q-pa-md">
+        <div class="text-h6 text-weight-bold text-primary q-mb-md">
+          <q-icon name="filter_list" class="q-mr-sm" />
+          Filtros
+        </div>
+      </div>
 
           <!-- Filtro Estado -->
           <q-list padding>
@@ -107,31 +152,19 @@
 
           <q-separator class="q-my-md" />
 
-          <!-- Filtro Marca -->
-          <BrandFilter v-model="selectedBrands" :brands="brands" />
+        <!-- Filtro Marca -->
+        <BrandFilter v-model="selectedBrands" :brands="brands" />
 
           <q-separator class="q-my-md" />
 
-          <!-- Filtro Sistema -->
-          <OSFilter v-model="selectedOS" :operatingSystems="operatingSystems" />
+        <!-- Filtro Sistema -->
+        <OSFilter v-model="selectedOS" :operatingSystems="operatingSystems" />
 
           <q-separator class="q-my-md" />
 
-          <!-- Filtro Pantalla -->
-          <ScreenSizeFilter v-model="selectedScreens" :screenSizes="screenSizes" />
-
-          <q-separator class="q-my-md" />
-
-          <!-- Rango de Precio en Drawer -->
-          <div class="q-pa-sm">
-            <div class="text-subtitle2 text-weight-bold text-primary q-mb-sm">Rango de Precio</div>
-            <q-range v-model="priceRange" :min="0" :max="2000" :step="50" label color="primary" />
-            <div class="text-caption text-center q-mt-sm text-weight-medium">
-              ${{ priceRange.min }} - ${{ priceRange.max }}
-            </div>
-          </div>
-        </div>
-      </q-scroll-area>
+        <!-- Filtro Pantalla -->
+        <ScreenSizeFilter v-model="selectedScreens" :screenSizes="screenSizes" />
+      </q-list>
     </q-drawer>
 
     <!-- CONTENIDO PRINCIPAL -->
@@ -140,7 +173,11 @@
         <!-- CONTROLES SUPERIORES SOLO EN ESCRITORIO -->
         <div class="controls-bar q-pa-md gt-sm">
           <div class="row q-mb-md items-center">
-            <div class="col-auto q-mr-md">
+            <!-- Rango de precio -->
+            <div
+              class="col-12 col-md-auto q-mb-md"
+              :class="$q.screen.lt.md ? 'q-mb-md' : 'q-mr-md'"
+            >
               <q-card flat bordered class="price-range-card q-pa-md">
                 <div class="text-subtitle2 text-weight-bold text-primary q-mb-sm">
                   <q-icon name="attach_money" class="q-mr-xs" />
@@ -153,7 +190,7 @@
                   :step="50"
                   label
                   color="primary"
-                  style="width: 300px"
+                  :style="$q.screen.lt.md ? 'width: 100%' : 'width: 300px'"
                 />
                 <div class="text-caption text-weight-bold text-center q-mt-sm">
                   ${{ priceRange.min }} - ${{ priceRange.max }}
@@ -161,22 +198,26 @@
               </q-card>
             </div>
 
-            <q-space />
+            <q-space v-if="$q.screen.gt.sm" />
 
-            <q-card flat bordered class="sort-card">
-              <q-select
-                v-model="sortBy"
-                :options="sortOptions"
-                label="Ordenar por"
-                outlined
-                dense
-                color="primary"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="sort" color="primary" />
-                </template>
-              </q-select>
-            </q-card>
+            <!-- Ordenar por -->
+            <div class="col-12 col-md-auto">
+              <q-card flat bordered class="sort-card">
+                <q-select
+                  v-model="sortBy"
+                  :options="sortOptions"
+                  label="Ordenar por"
+                  outlined
+                  dense
+                  color="primary"
+                  :style="$q.screen.lt.md ? 'width: 100%' : 'width: 220px'"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="sort" color="primary" />
+                  </template>
+                </q-select>
+              </q-card>
+            </div>
           </div>
         </div>
 
@@ -244,7 +285,7 @@ export default {
     const { totalItems } = useCart()
 
     const leftDrawerOpen = ref(false)
-    const rightDrawerOpen = ref(false)
+    const filterDrawerOpen = ref($q.screen.gt.sm) // Abierto en desktop, cerrado en móvil por defecto
     const searchQuery = ref('')
     const showNewProducts = ref(false)
 
@@ -311,25 +352,40 @@ export default {
     }
 
     const goToHome = () => {
-      router.push('/')
+      if ($q.screen.lt.md) {
+        leftDrawerOpen.value = false
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      $q.notify({
+        message: 'Ya estás en el inicio',
+        color: 'info',
+        position: 'top',
+        timeout: 1500,
+        icon: 'home',
+      })
     }
 
     const goToStats = () => {
+      if ($q.screen.lt.md) {
+        leftDrawerOpen.value = false
+      }
       router.push('/estadisticas')
     }
 
     const goToCart = () => {
+      if ($q.screen.lt.md) {
+        leftDrawerOpen.value = false
+      }
       router.push('/carrito')
     }
 
     const showCrearProductoDialog = ref(false)
 
     const crearProducto = () => {
-      if ($q.platform.is.mobile) {
-        router.push('/crear-anuncio')
-      } else {
-        showCrearProductoDialog.value = true
+      if ($q.screen.lt.md) {
+        leftDrawerOpen.value = false
       }
+      showCrearProductoDialog.value = true
     }
 
     const filteredProducts = computed(() => {
@@ -338,7 +394,7 @@ export default {
 
     return {
       leftDrawerOpen,
-      rightDrawerOpen,
+      filterDrawerOpen,
       searchQuery,
       showNewProducts,
       brands,
@@ -353,14 +409,11 @@ export default {
       products,
       loading,
       totalItems,
-      filteredProducts,
-      toggleLeftDrawer,
-      toggleRightDrawer,
+      showCrearProductoDialog,
       goToHome,
       goToStats,
       goToCart,
       crearProducto,
-      showCrearProductoDialog,
       cargarProductos,
     }
   },
@@ -376,5 +429,36 @@ export default {
 .price-range-card,
 .sort-card {
   border-radius: 12px;
+}
+
+.bg-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.page-gradient {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.sidebar-gradient {
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.cart-btn {
+  position: relative;
+}
+
+.pulse-badge {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
 }
 </style>

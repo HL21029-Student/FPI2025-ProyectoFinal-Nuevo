@@ -8,32 +8,40 @@
       </div>
     </div>
 
-    <!-- Grid de productos MÓVIL - 2 COLUMNAS -->
-    <div v-else class="row q-col-gutter-sm q-pa-sm">
-      <div v-for="product in paginatedProducts" :key="product.id" class="col-6">
-        <q-card
-          class="product-card-mobile cursor-pointer shadow-1"
-          @click="goToProduct(product.id)"
-        >
-          <q-img :src="product.image" ratio="1" class="product-image-mobile">
-            <div v-if="product.isNew" class="absolute-top-right q-ma-xs">
-              <q-badge color="green" label="NUEVO" class="text-caption new-badge-mobile" />
+    <!-- Grid de productos - 2 columnas en móvil -->
+    <div v-else class="row q-col-gutter-lg q-pa-lg">
+      <div
+        v-for="product in paginatedProducts"
+        :key="product.id"
+        class="col-6 col-sm-6 col-md-4 col-lg-3"
+      >
+        <q-card class="base-card product-card cursor-pointer" @click="goToProduct(product.id)">
+          <q-img :src="product.image" ratio="1" class="bg-grey-3 product-image">
+            <div v-if="product.isNew" class="absolute-top-right q-ma-sm">
+              <q-badge color="green" label="NUEVO" class="new-badge">
+                <q-icon name="star" size="xs" class="q-ml-xs" />
+              </q-badge>
+            </div>
+            <div class="absolute-bottom product-overlay">
+              <div class="text-white text-weight-bold">Ver detalles</div>
             </div>
           </q-img>
 
-          <q-card-section class="q-pa-sm">
-            <div class="text-subtitle2 text-weight-bold ellipsis-2-lines product-title">
-              {{ product.name }}
-            </div>
-            <div class="text-h6 text-primary text-weight-bold q-mt-xs product-price">
-              ${{ product.price }}
-            </div>
+          <q-card-section class="q-pb-xs">
+            <div class="text-subtitle1 text-weight-bold ellipsis-2-lines">{{ product.name }}</div>
+            <div class="text-h6 text-primary text-weight-bold q-mt-sm">${{ product.price }}</div>
+          </q-card-section>
 
-            <!-- Info compacta móvil -->
-            <div class="row items-center q-mt-xs">
-              <q-icon name="business" size="xs" color="grey-6" />
-              <span class="text-caption text-grey-7 q-ml-xs">{{ product.brand }}</span>
-            </div>
+          <q-card-section class="q-pt-none">
+            <q-btn
+              unelevated
+              color="primary"
+              icon="add_shopping_cart"
+              class="full-width"
+              @click.stop="addToCart(product)"
+              label="Agregar"
+              size="sm"
+            />
           </q-card-section>
 
           <!-- Botón agregar al carrito -->
@@ -296,5 +304,16 @@ export default defineComponent({
   .product-price {
     font-size: 1.25rem;
   }
+}
+
+.base-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.base-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 </style>

@@ -3,17 +3,70 @@
     <!-- HEADER MÓVIL SIMPLIFICADO -->
     <q-header elevated class="bg-primary text-white">
       <q-toolbar>
-        <q-btn flat round dense icon="arrow_back" @click="$router.back()" />
-        <q-toolbar-title class="text-center text-weight-bold"> Carrito de Compras </q-toolbar-title>
-        <q-badge v-if="totalItems > 0" color="red" class="q-mr-sm">
-          {{ totalItems }}
-        </q-badge>
+        <!-- Botón de volver en móvil -->
+        <q-btn
+          v-if="$q.screen.lt.md"
+          flat
+          dense
+          round
+          icon="arrow_back"
+          @click="goToHome"
+          class="q-mr-sm"
+        />
+
+        <q-icon name="campaign" size="md" class="q-mr-sm" />
+        <q-toolbar-title class="text-h6 text-weight-bold cursor-pointer" @click="goToHome">
+          Tienda CellPhone
+        </q-toolbar-title>
+
+        <!-- Botones solo en desktop -->
+        <div v-if="$q.screen.gt.sm">
+          <q-btn outline label="Inicio" class="q-mx-xs" @click="goToHome" />
+          <q-btn outline label="Estadísticas" class="q-mx-xs" @click="goToStats" />
+
+          <q-btn
+            round
+            color="white"
+            text-color="primary"
+            icon="add"
+            class="q-mx-md"
+            @click="crearProducto"
+          >
+            <q-tooltip>Crear nuevo producto</q-tooltip>
+          </q-btn>
+        </div>
       </q-toolbar>
     </q-header>
 
     <!-- CONTENIDO PRINCIPAL -->
     <q-page-container>
-      <q-page class="carrito-mobile">
+      <q-page class="page-gradient q-pa-md">
+        <!-- Título con animación -->
+        <div class="row items-center q-mb-lg">
+          <q-icon
+            name="shopping_cart"
+            :size="$q.screen.lt.md ? '2rem' : '3rem'"
+            color="primary"
+            class="q-mr-md"
+          />
+          <div
+            :class="$q.screen.lt.md ? 'text-h4' : 'text-h3'"
+            class="text-weight-bold text-primary"
+          >
+            Carrito de Compras
+          </div>
+          <q-space />
+          <q-chip
+            v-if="cartItems.length > 0"
+            color="primary"
+            text-color="white"
+            icon="inventory"
+            :class="$q.screen.lt.md ? 'text-subtitle1' : 'text-h6'"
+          >
+            {{ totalItems }} {{ totalItems === 1 ? 'producto' : 'productos' }}
+          </q-chip>
+        </div>
+
         <!-- Carrito vacío -->
         <div v-if="cartItems.length === 0" class="empty-cart-mobile">
           <div class="text-center q-pa-xl">
@@ -34,26 +87,27 @@
           </div>
         </div>
 
-        <!-- Carrito con productos -->
-        <div v-else class="carrito-contenido">
-          <!-- Lista de productos -->
-          <div class="productos-lista q-pa-md">
-            <div class="text-h6 text-weight-bold q-mb-md">Tus Productos</div>
-
-            <transition-group name="cart-item" tag="div">
-              <q-card
-                v-for="(item, index) in cartItems"
-                :key="item.id || index"
-                class="cart-item-mobile q-mb-sm"
-              >
-                <q-card-section class="q-pa-sm">
-                  <div class="row items-center">
-                    <!-- Imagen del producto -->
+        <!-- Items del carrito -->
+        <div v-else>
+          <div class="row" :class="$q.screen.lt.md ? 'flex-column' : 'q-col-gutter-lg'">
+            <!-- Lista de productos -->
+            <div :class="$q.screen.lt.md ? 'col-12 q-mb-lg' : 'col-12 col-lg-8'">
+              <transition-group name="cart-item" tag="div">
+                <q-card
+                  v-for="(item, index) in cartItems"
+                  :key="item.id || index"
+                  class="base-card cart-item-card q-mb-md"
+                >
+                  <q-card-section class="row items-center q-pa-sm">
                     <div class="col-auto q-mr-sm">
                       <q-img
                         :src="item.image"
-                        style="width: 80px; height: 80px"
-                        class="rounded-borders product-thumb-mobile"
+                        :style="
+                          $q.screen.lt.md
+                            ? 'width: 80px; height: 80px'
+                            : 'width: 100px; height: 100px'
+                        "
+                        class="rounded-borders product-thumb"
                       >
                         <div v-if="item.isNew" class="absolute-top-left q-ma-xs">
                           <q-badge color="green" label="NUEVO" class="text-caption" />
@@ -63,13 +117,42 @@
 
                     <!-- Información del producto -->
                     <div class="col">
-                      <div class="text-subtitle2 text-weight-bold ellipsis-2-lines q-mb-xs">
+                      <div
+                        :class="$q.screen.lt.md ? 'text-subtitle1' : 'text-h6'"
+                        class="text-weight-bold q-mb-xs"
+                      >
                         {{ item.name }}
                       </div>
-                      <div class="text-caption text-grey-7 q-mb-xs">
-                        {{ item.brand }} • {{ item.screen }}
+                      <div class="product-details">
+                        <q-chip size="sm" color="purple" text-color="white" icon="business">
+                          {{ item.brand }}
+                        </q-chip>
+                        <q-chip
+                          v-if="!$q.screen.lt.md"
+                          size="sm"
+                          color="primary"
+                          text-color="white"
+                          icon="phone_iphone"
+                        >
+                          {{ item.screen }}
+                        </q-chip>
+                        <q-chip
+                          v-if="!$q.screen.lt.md"
+                          size="sm"
+                          color="orange"
+                          text-color="white"
+                          icon="storage"
+                        >
+                          {{ item.memory || 'N/A' }}
+                        </q-chip>
                       </div>
-                      <div class="text-h6 text-primary text-weight-bold">
+                    </div>
+
+                    <div class="col-auto text-right">
+                      <div
+                        :class="$q.screen.lt.md ? 'text-h6' : 'text-h5'"
+                        class="text-primary text-weight-bold q-mb-sm"
+                      >
                         ${{ item.price.toFixed(2) }}
                       </div>
                     </div>
@@ -81,7 +164,7 @@
                         flat
                         color="negative"
                         icon="delete"
-                        size="sm"
+                        :size="$q.screen.lt.md ? 'sm' : 'md'"
                         @click="removeFromCart(index)"
                         class="remove-btn-mobile"
                       >
@@ -104,18 +187,13 @@
             />
           </div>
 
-          <!-- Resumen del pedido FIJADO -->
-          <div class="resumen-fijo">
-            <q-card class="resumen-card-mobile">
-              <q-card-section class="q-pa-md">
-                <div class="text-h6 text-weight-bold text-primary q-mb-md">
-                  <q-icon name="receipt" class="q-mr-sm" />
-                  Resumen del Pedido
-                </div>
-
-                <div class="resumen-row q-mb-sm">
-                  <div class="text-body1">
-                    Subtotal ({{ totalItems }} {{ totalItems === 1 ? 'producto' : 'productos' }})
+            <!-- Resumen del pedido -->
+            <div :class="$q.screen.lt.md ? 'col-12' : 'col-12 col-lg-4'">
+              <q-card class="base-card summary-card" :class="$q.screen.lt.md ? '' : 'sticky-top'">
+                <q-card-section class="bg-primary text-white">
+                  <div class="text-h6 text-weight-bold">
+                    <q-icon name="receipt" class="q-mr-sm" />
+                    Resumen del Pedido
                   </div>
                   <div class="text-h6 text-weight-medium">${{ subtotal.toFixed(2) }}</div>
                 </div>
@@ -378,7 +456,27 @@ export default {
 
 .checkout-btn-mobile:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(25, 118, 210, 0.4);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+}
+
+.bg-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.page-gradient {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.base-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.base-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 /* Animaciones para items del carrito */
@@ -401,76 +499,14 @@ export default {
   transition: transform 0.5s ease;
 }
 
-/* Responsive para tablets */
-@media (min-width: 768px) {
-  .carrito-contenido {
-    padding-bottom: 0;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .summary-card {
+    margin-top: 20px;
   }
 
-  .resumen-fijo {
-    position: static;
-    padding: 16px;
-  }
-
-  .resumen-card-mobile {
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    max-height: none;
-  }
-
-  .productos-lista {
-    margin-bottom: 24px;
-  }
-}
-
-/* Responsive para escritorio */
-@media (min-width: 1024px) {
-  .carrito-mobile {
-    padding: 24px;
-  }
-
-  .carrito-contenido {
-    display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 24px;
-    align-items: start;
-  }
-
-  .productos-lista {
-    margin-bottom: 0;
-  }
-
-  .resumen-fijo {
-    position: sticky;
-    top: 100px;
-  }
-}
-
-/* Mejoras de scroll para móvil */
-@media (max-width: 767px) {
-  .resumen-card-mobile {
-    max-height: 50vh;
-  }
-
-  .carrito-contenido {
-    padding-bottom: 280px;
-  }
-}
-
-/* Estilos para dark mode */
-@media (prefers-color-scheme: dark) {
-  .carrito-mobile {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  }
-
-  .productos-lista {
-    background: #1e1e1e;
-    color: white;
-  }
-
-  .cart-item-mobile {
-    background: #2d2d2d;
-    border-left-color: #64b5f6;
+  .product-details {
+    justify-content: flex-start;
   }
 }
 </style>
