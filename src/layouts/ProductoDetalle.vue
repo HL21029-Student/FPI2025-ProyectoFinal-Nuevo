@@ -3,11 +3,24 @@
     <!-- Header / Navbar -->
     <q-header elevated class="bg-gradient">
       <q-toolbar>
-        <q-toolbar-title class="text-h5 text-weight-bold cursor-pointer" @click="goToHome">
+        <!-- Botón de volver en móvil -->
+        <q-btn
+          v-if="$q.screen.lt.md"
+          flat
+          dense
+          round
+          icon="arrow_back"
+          @click="goToHome"
+          class="q-mr-sm"
+        />
+
+        <q-toolbar-title class="text-h6 text-weight-bold cursor-pointer" @click="goToHome">
           Tienda CellPhone
         </q-toolbar-title>
 
+        <!-- Barra de búsqueda solo en desktop -->
         <q-input
+          v-if="$q.screen.gt.sm"
           dark
           dense
           standout
@@ -21,10 +34,13 @@
           </template>
         </q-input>
 
-        <q-btn outline label="Inicio" class="q-mx-xs" @click="goToHome" />
-        <q-btn outline label="Estadísticas" class="q-mx-xs" @click="goToStats" />
+        <!-- Botones de navegación solo en desktop -->
+        <div v-if="$q.screen.gt.sm">
+          <q-btn outline label="Inicio" class="q-mx-xs" @click="goToHome" />
+          <q-btn outline label="Estadísticas" class="q-mx-xs" @click="goToStats" />
 
-        <q-btn round color="secondary" icon="add" class="q-mx-md" @click="crearProducto" />
+          <q-btn round color="secondary" icon="add" class="q-mx-md" @click="crearProducto" />
+        </div>
 
         <q-btn flat round dense @click="goToCart">
           <q-icon name="shopping_cart" size="md" />
@@ -44,10 +60,10 @@
           </div>
 
           <!-- Producto cargado -->
-          <template v-else-if="product">
+          <div v-else-if="product" class="row q-col-gutter-lg col-12">
             <!-- Columna Izquierda - Carrusel de Imágenes -->
             <div class="col-12 col-md-6">
-              <q-card v-if="product.images && product.images.length > 0" class="shadow-4">
+              <q-card class="shadow-4">
                 <q-carousel
                   v-model="slide"
                   transition-prev="slide-right"
@@ -100,101 +116,101 @@
                 </div>
               </div>
             </div>
-          </template>
 
-          <!-- Columna Derecha - Información del Producto -->
-          <div class="col-12 col-md-6">
-            <div class="text-h4 text-weight-bold q-mb-md">
-              {{ product?.name }}
-            </div>
+            <!-- Columna Derecha - Información del Producto -->
+            <div class="col-12 col-md-6">
+              <div class="text-h4 text-weight-bold q-mb-md">
+                {{ product?.name }}
+              </div>
 
-            <div class="row q-mb-sm items-center">
-              <q-icon name="smartphone" size="sm" class="q-mr-sm text-grey-7" />
-              <span class="text-body1">Pantalla: {{ product?.screen }}</span>
-            </div>
+              <div class="row q-mb-sm items-center">
+                <q-icon name="smartphone" size="sm" class="q-mr-sm text-grey-7" />
+                <span class="text-body1">Pantalla: {{ product?.screen }}</span>
+              </div>
 
-            <div class="row q-mb-sm items-center">
-              <q-icon name="storage" size="sm" class="q-mr-sm text-grey-7" />
-              <span class="text-body1">Almacenamiento: {{ product?.storage }}</span>
-            </div>
+              <div class="row q-mb-sm items-center">
+                <q-icon name="storage" size="sm" class="q-mr-sm text-grey-7" />
+                <span class="text-body1">Almacenamiento: {{ product?.storage }}</span>
+              </div>
 
-            <div class="row q-mb-sm items-center">
-              <q-icon name="memory" size="sm" class="q-mr-sm text-grey-7" />
-              <span class="text-body1">RAM: {{ product?.ram }}</span>
-            </div>
+              <div class="row q-mb-sm items-center">
+                <q-icon name="memory" size="sm" class="q-mr-sm text-grey-7" />
+                <span class="text-body1">RAM: {{ product?.ram }}</span>
+              </div>
 
-            <div class="row q-mb-sm items-center">
-              <q-icon name="signal_cellular_alt" size="sm" class="q-mr-sm text-grey-7" />
-              <span class="text-body1">Red: {{ product?.network }}</span>
-            </div>
+              <div class="row q-mb-sm items-center">
+                <q-icon name="signal_cellular_alt" size="sm" class="q-mr-sm text-grey-7" />
+                <span class="text-body1">Red: {{ product?.network }}</span>
+              </div>
 
-            <div class="row q-mb-md items-center">
-              <q-icon name="verified" size="sm" class="q-mr-sm text-grey-7" />
-              <span class="text-body1">Condición: {{ product?.condition }}</span>
-              <q-chip
-                :color="product?.condition === 'Nuevo' ? 'green' : 'blue'"
-                text-color="white"
-                size="sm"
-                class="q-ml-sm"
-              >
-                {{ product?.condition }}
-              </q-chip>
-            </div>
+              <div class="row q-mb-md items-center">
+                <q-icon name="verified" size="sm" class="q-mr-sm text-grey-7" />
+                <span class="text-body1">Condición: {{ product?.condition }}</span>
+                <q-chip
+                  :color="product?.condition === 'Nuevo' ? 'green' : 'blue'"
+                  text-color="white"
+                  size="sm"
+                  class="q-ml-sm"
+                >
+                  {{ product?.condition }}
+                </q-chip>
+              </div>
 
-            <q-separator class="q-my-lg" />
+              <q-separator class="q-my-lg" />
 
-            <!-- Precio y Botón de Compra -->
-            <div class="text-h3 text-primary text-weight-bold q-mb-md">
-              ${{ product?.price?.toFixed(2) }}
-            </div>
+              <!-- Precio y Botón de Compra -->
+              <div class="text-h3 text-primary text-weight-bold q-mb-md">
+                ${{ product?.price?.toFixed(2) }}
+              </div>
 
-            <q-btn
-              unelevated
-              color="primary"
-              size="lg"
-              label="Comprar"
-              icon="shopping_cart"
-              class="full-width q-mb-lg"
-              style="padding: 16px"
-              @click="addToCart"
-            />
+              <q-btn
+                unelevated
+                color="primary"
+                size="lg"
+                label="Comprar"
+                icon="shopping_cart"
+                class="full-width q-mb-lg"
+                style="padding: 16px"
+                @click="addToCart"
+              />
 
-            <!-- Información del Vendedor -->
-            <q-card class="bg-grey-2">
-              <q-card-section>
-                <div class="text-h6 text-weight-medium q-mb-sm">
-                  <q-icon name="person" class="q-mr-sm" />
-                  Información del Vendedor
-                </div>
-                <q-separator class="q-mb-md" />
-                <div class="row q-mb-sm items-center">
-                  <q-icon name="account_circle" size="sm" class="q-mr-sm text-grey-7" />
-                  <span class="text-body1 text-weight-medium">{{ product?.nombreVendedor }}</span>
-                </div>
-                <div class="row items-center">
-                  <q-icon name="phone" size="sm" class="q-mr-sm text-grey-7" />
-                  <span class="text-body1">{{ product?.telefono }}</span>
+              <!-- Información del Vendedor -->
+              <q-card class="bg-grey-2">
+                <q-card-section>
+                  <div class="text-h6 text-weight-medium q-mb-sm">
+                    <q-icon name="person" class="q-mr-sm" />
+                    Información del Vendedor
+                  </div>
+                  <q-separator class="q-mb-md" />
+                  <div class="row q-mb-sm items-center">
+                    <q-icon name="account_circle" size="sm" class="q-mr-sm text-grey-7" />
+                    <span class="text-body1 text-weight-medium">{{ product?.nombreVendedor }}</span>
+                  </div>
+                  <div class="row items-center">
+                    <q-icon name="phone" size="sm" class="q-mr-sm text-grey-7" />
+                    <span class="text-body1">{{ product?.telefono }}</span>
+                    <q-btn
+                      flat
+                      dense
+                      color="primary"
+                      icon="content_copy"
+                      size="sm"
+                      class="q-ml-sm"
+                      @click="copyPhone"
+                    >
+                      <q-tooltip>Copiar número</q-tooltip>
+                    </q-btn>
+                  </div>
                   <q-btn
-                    flat
-                    dense
+                    outline
                     color="primary"
-                    icon="content_copy"
-                    size="sm"
-                    class="q-ml-sm"
-                    @click="copyPhone"
-                  >
-                    <q-tooltip>Copiar número</q-tooltip>
-                  </q-btn>
-                </div>
-                <q-btn
-                  outline
-                  color="primary"
-                  label="Contactar Vendedor"
-                  icon="chat"
-                  class="full-width q-mt-md"
-                />
-              </q-card-section>
-            </q-card>
+                    label="Contactar Vendedor"
+                    icon="chat"
+                    class="full-width q-mt-md"
+                  />
+                </q-card-section>
+              </q-card>
+            </div>
           </div>
         </div>
 
@@ -354,7 +370,7 @@ export default {
     const $q = useQuasar()
     const { addToCart: addToCartComposable, totalItems } = useCart()
     const searchQuery = ref('')
-    const slide = ref(1) // Inicializar el slide
+    const slide = ref(1)
     const fullscreen = ref(false)
     const showCrearProductoDialog = ref(false)
 
@@ -390,7 +406,7 @@ export default {
           screen: data.pantalla,
           storage: data.rom,
           ram: data.ram,
-          network: data.network || '5G', // Usar dato si existe, si no, '5G'
+          network: data.network || '5G',
           condition: data.estado === 'nuevo' ? 'Nuevo' : 'Usado',
           os: data.sistemaOperativo,
           camera: data.camera || 'No especificado',
@@ -398,8 +414,8 @@ export default {
           color: data.color || 'Varios',
           price: data.precio,
           nombreVendedor: data.nombreVendedor,
-          telefono: data.telefono, // Aseguramos que el teléfono se cargue
-          images: data.imagen ? [data.imagen] : [], // Usar la imagen principal en un array
+          telefono: data.telefono,
+          images: data.imagen ? [data.imagen] : [],
           description:
             data.descripcion ||
             `Excelente teléfono ${data.modelo} de ${data.marca}. ${data.pantalla}, ${data.rom} de almacenamiento, ${data.ram} de RAM.`,
@@ -448,12 +464,11 @@ export default {
 
     const addToCart = () => {
       if (product.value) {
-        // Mapeamos el producto al formato que espera el carrito
         const cartProduct = {
           id: product.value.id,
           name: product.value.name,
           price: product.value.price,
-          image: product.value.images[0], // Usamos la primera imagen
+          image: product.value.images[0],
           brand: product.value.brand,
           screen: product.value.screen,
           memory: product.value.storage,
@@ -509,5 +524,9 @@ export default {
 
 .rounded-borders {
   border-radius: 8px;
+}
+
+.bg-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 </style>

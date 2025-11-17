@@ -3,11 +3,24 @@
     <!-- Header / Navbar -->
     <q-header elevated class="bg-gradient">
       <q-toolbar>
-        <q-toolbar-title class="text-h5 text-weight-bold cursor-pointer" @click="goToHome">
+        <!-- Botón de volver en móvil -->
+        <q-btn
+          v-if="$q.screen.lt.md"
+          flat
+          dense
+          round
+          icon="arrow_back"
+          @click="goToHome"
+          class="q-mr-sm"
+        />
+
+        <q-toolbar-title class="text-h6 text-weight-bold cursor-pointer" @click="goToHome">
           Tienda CellPhone
         </q-toolbar-title>
 
+        <!-- Barra de búsqueda solo en desktop -->
         <q-input
+          v-if="$q.screen.gt.sm"
           dark
           dense
           standout
@@ -21,10 +34,13 @@
           </template>
         </q-input>
 
-        <q-btn outline label="Inicio" class="q-mx-xs" @click="goToHome" />
-        <q-btn outline label="Estadísticas" class="q-mx-xs" @click="goToStats" />
+        <!-- Botones de navegación solo en desktop -->
+        <div v-if="$q.screen.gt.sm">
+          <q-btn outline label="Inicio" class="q-mx-xs" @click="goToHome" />
+          <q-btn outline label="Estadísticas" class="q-mx-xs" @click="goToStats" />
 
-        <q-btn round color="secondary" icon="add" class="q-mx-md" @click="crearProducto" />
+          <q-btn round color="secondary" icon="add" class="q-mx-md" @click="crearProducto" />
+        </div>
 
         <q-btn flat round dense @click="goToCart">
           <q-icon name="shopping_cart" size="md" />
@@ -331,12 +347,12 @@
     </q-page-container>
 
     <!-- Diálogo para crear producto -->
-    <CrearProductoDialog v-model="showCrearProductoDialog" @productoCreado="cargarProductos" />
+    <CrearProductoDialog v-model="showCrearProductoDialog" />
   </q-layout>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { useCart } from '../composables/useCart'
@@ -352,7 +368,7 @@ export default {
   setup() {
     const router = useRouter()
     const $q = useQuasar()
-    const { addToCart: addToCartComposable } = useCart()
+    const { addToCart: addToCartComposable, totalItems } = useCart()
     const searchQuery = ref('')
     const slide = ref(1)
     const fullscreen = ref(false)
@@ -384,35 +400,35 @@ export default {
 
         product.value = {
           id: data.id,
-          name: data.tituloAnuncio || data.nombre || 'Sin título',
+          name: data.tituloAnuncio || 'Sin título',
           brand: data.marca,
-          model: data.modelo || data.nombre,
+          model: data.modelo,
           screen: data.pantalla,
-          storage: data.rom || 'N/A',
-          ram: data.ram || 'N/A',
-          network: '5G',
+          storage: data.rom,
+          ram: data.ram,
+          network: data.network || '5G',
           condition: data.estado === 'nuevo' ? 'Nuevo' : 'Usado',
-          os: data.sistemaOperativo || (data.marca === 'Apple' ? 'iOS' : 'Android'),
-          camera: 'No especificado',
-          battery: 'No especificado',
-          color: 'Varios',
+          os: data.sistemaOperativo,
+          camera: data.camera || 'No especificado',
+          battery: data.battery || 'No especificado',
+          color: data.color || 'Varios',
           price: data.precio,
           nombreVendedor: data.nombreVendedor,
           telefono: data.telefono,
-          images: data.imagenes || [data.imagen],
+          images: data.imagen ? [data.imagen] : [],
           description:
             data.descripcion ||
-            `Excelente teléfono ${data.modelo || data.nombre} de ${data.marca}. ${data.pantalla}, ${data.rom || 'N/A'} de almacenamiento, ${data.ram || 'N/A'} de RAM.`,
+            `Excelente teléfono ${data.modelo} de ${data.marca}. ${data.pantalla}, ${data.rom} de almacenamiento, ${data.ram} de RAM.`,
           features: [
             `Pantalla ${data.pantalla}`,
-            `Sistema Operativo ${data.sistemaOperativo || 'Android'}`,
-            `Almacenamiento ${data.rom || 'N/A'}`,
-            `RAM ${data.ram || 'N/A'}`,
+            `Sistema Operativo ${data.sistemaOperativo}`,
+            `Almacenamiento ${data.rom}`,
+            `RAM ${data.ram}`,
             'Conectividad 5G',
             'Garantía incluida',
           ],
           includes: [
-            `Teléfono ${data.modelo || data.nombre}`,
+            `Teléfono ${data.modelo}`,
             'Cable de carga',
             'Manual de usuario',
             'Garantía oficial',
@@ -432,7 +448,7 @@ export default {
     }
 
     // Cargar producto al montar
-    onMounted(cargarProducto)
+    cargarProducto()
 
     const goToHome = () => {
       router.push('/')
@@ -447,12 +463,19 @@ export default {
     }
 
     const addToCart = () => {
-      console.log('Producto a agregar:', product.value)
       if (product.value) {
-        addToCartComposable(product.value)
-        console.log('Producto agregado al carrito')
+        const cartProduct = {
+          id: product.value.id,
+          name: product.value.name,
+          price: product.value.price,
+          image: product.value.images[0],
+          brand: product.value.brand,
+          screen: product.value.screen,
+          memory: product.value.storage,
+        }
+        addToCartComposable(cartProduct)
       } else {
-        console.log('No hay producto para agregar')
+        $q.notify({ type: 'negative', message: 'No hay producto para agregar.' })
       }
     }
 
@@ -477,6 +500,8 @@ export default {
       fullscreen,
       product,
       loading,
+      totalItems,
+      showCrearProductoDialog,
       goToHome,
       goToStats,
       goToCart,
@@ -499,5 +524,9 @@ export default {
 
 .rounded-borders {
   border-radius: 8px;
+}
+
+.bg-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 </style>
