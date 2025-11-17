@@ -3,41 +3,65 @@
     <!-- Header / Navbar -->
     <q-header elevated class="bg-gradient">
       <q-toolbar>
+        <!-- Botón de volver en móvil -->
+        <q-btn
+          v-if="$q.screen.lt.md"
+          flat
+          dense
+          round
+          icon="arrow_back"
+          @click="goToHome"
+          class="q-mr-sm"
+        />
+
         <q-icon name="campaign" size="md" class="q-mr-sm" />
         <q-toolbar-title class="text-h6 text-weight-bold cursor-pointer" @click="goToHome">
           Tienda CellPhone
         </q-toolbar-title>
 
-        <q-btn outline label="Inicio" class="q-mx-xs" @click="goToHome" />
-        <q-btn outline label="Estadísticas" class="q-mx-xs" @click="goToStats" />
+        <!-- Botones solo en desktop -->
+        <div v-if="$q.screen.gt.sm">
+          <q-btn outline label="Inicio" class="q-mx-xs" @click="goToHome" />
+          <q-btn outline label="Estadísticas" class="q-mx-xs" @click="goToStats" />
 
-        <q-btn
-          round
-          color="white"
-          text-color="primary"
-          icon="add"
-          class="q-mx-md"
-          @click="crearProducto"
-        >
-          <q-tooltip>Crear nuevo producto</q-tooltip>
-        </q-btn>
+          <q-btn
+            round
+            color="white"
+            text-color="primary"
+            icon="add"
+            class="q-mx-md"
+            @click="crearProducto"
+          >
+            <q-tooltip>Crear nuevo producto</q-tooltip>
+          </q-btn>
+        </div>
       </q-toolbar>
     </q-header>
 
     <!-- Contenido principal -->
     <q-page-container>
-      <q-page class="page-gradient q-pa-lg">
+      <q-page class="page-gradient q-pa-md">
         <!-- Título con animación -->
-        <div class="row items-center q-mb-xl">
-          <q-icon name="shopping_cart" size="3rem" color="primary" class="q-mr-md" />
-          <div class="text-h3 text-weight-bold text-primary">Carrito de Compras</div>
+        <div class="row items-center q-mb-lg">
+          <q-icon
+            name="shopping_cart"
+            :size="$q.screen.lt.md ? '2rem' : '3rem'"
+            color="primary"
+            class="q-mr-md"
+          />
+          <div
+            :class="$q.screen.lt.md ? 'text-h4' : 'text-h3'"
+            class="text-weight-bold text-primary"
+          >
+            Carrito de Compras
+          </div>
           <q-space />
           <q-chip
             v-if="cartItems.length > 0"
             color="primary"
             text-color="white"
             icon="inventory"
-            class="text-h6"
+            :class="$q.screen.lt.md ? 'text-subtitle1' : 'text-h6'"
           >
             {{ totalItems }} {{ totalItems === 1 ? 'producto' : 'productos' }}
           </q-chip>
@@ -67,20 +91,24 @@
 
         <!-- Items del carrito -->
         <div v-else>
-          <div class="row q-col-gutter-lg">
+          <div class="row" :class="$q.screen.lt.md ? 'flex-column' : 'q-col-gutter-lg'">
             <!-- Lista de productos -->
-            <div class="col-12 col-lg-8">
+            <div :class="$q.screen.lt.md ? 'col-12 q-mb-lg' : 'col-12 col-lg-8'">
               <transition-group name="cart-item" tag="div">
                 <q-card
                   v-for="(item, index) in cartItems"
                   :key="item.id || index"
                   class="base-card cart-item-card q-mb-md"
                 >
-                  <q-card-section class="row items-center q-pa-md">
-                    <div class="col-auto q-mr-md">
+                  <q-card-section class="row items-center q-pa-sm">
+                    <div class="col-auto q-mr-sm">
                       <q-img
                         :src="item.image"
-                        style="width: 100px; height: 100px"
+                        :style="
+                          $q.screen.lt.md
+                            ? 'width: 80px; height: 80px'
+                            : 'width: 100px; height: 100px'
+                        "
                         class="rounded-borders product-thumb"
                       >
                         <div v-if="item.isNew" class="absolute-top-left q-ma-xs">
@@ -90,22 +118,42 @@
                     </div>
 
                     <div class="col">
-                      <div class="text-h6 text-weight-bold q-mb-xs">{{ item.name }}</div>
+                      <div
+                        :class="$q.screen.lt.md ? 'text-subtitle1' : 'text-h6'"
+                        class="text-weight-bold q-mb-xs"
+                      >
+                        {{ item.name }}
+                      </div>
                       <div class="product-details">
                         <q-chip size="sm" color="purple" text-color="white" icon="business">
                           {{ item.brand }}
                         </q-chip>
-                        <q-chip size="sm" color="primary" text-color="white" icon="phone_iphone">
+                        <q-chip
+                          v-if="!$q.screen.lt.md"
+                          size="sm"
+                          color="primary"
+                          text-color="white"
+                          icon="phone_iphone"
+                        >
                           {{ item.screen }}
                         </q-chip>
-                        <q-chip size="sm" color="orange" text-color="white" icon="storage">
+                        <q-chip
+                          v-if="!$q.screen.lt.md"
+                          size="sm"
+                          color="orange"
+                          text-color="white"
+                          icon="storage"
+                        >
                           {{ item.memory || 'N/A' }}
                         </q-chip>
                       </div>
                     </div>
 
                     <div class="col-auto text-right">
-                      <div class="text-h5 text-primary text-weight-bold q-mb-sm">
+                      <div
+                        :class="$q.screen.lt.md ? 'text-h6' : 'text-h5'"
+                        class="text-primary text-weight-bold q-mb-sm"
+                      >
                         ${{ item.price.toFixed(2) }}
                       </div>
                       <q-btn
@@ -113,7 +161,7 @@
                         round
                         color="negative"
                         icon="delete"
-                        size="md"
+                        :size="$q.screen.lt.md ? 'sm' : 'md'"
                         @click="removeFromCart(index)"
                         class="remove-btn"
                       >
@@ -140,8 +188,8 @@
             </div>
 
             <!-- Resumen del pedido -->
-            <div class="col-12 col-lg-4">
-              <q-card class="base-card summary-card sticky-top">
+            <div :class="$q.screen.lt.md ? 'col-12' : 'col-12 col-lg-4'">
+              <q-card class="base-card summary-card" :class="$q.screen.lt.md ? '' : 'sticky-top'">
                 <q-card-section class="bg-primary text-white">
                   <div class="text-h6 text-weight-bold">
                     <q-icon name="receipt" class="q-mr-sm" />
@@ -412,8 +460,24 @@ export default {
   box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
 }
 
-.search-input {
-  border-radius: 20px;
+.bg-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.page-gradient {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+.base-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.base-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 /* Animaciones de transición para items del carrito */
@@ -434,5 +498,16 @@ export default {
 
 .cart-item-move {
   transition: transform 0.5s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .summary-card {
+    margin-top: 20px;
+  }
+
+  .product-details {
+    justify-content: flex-start;
+  }
 }
 </style>
