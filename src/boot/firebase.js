@@ -19,12 +19,22 @@ const db = getFirestore(app)
 
 export default boot(({ app }) => {
   app.config.globalProperties.$db = db
+  console.log('🔥 Firebase inicializado correctamente')
+  console.log('📊 Configuración:', {
+    projectId: firebaseConfig.projectId,
+    hasApiKey: !!firebaseConfig.apiKey,
+  })
 
   // Inicializa los productos si la base de datos está vacía
   // Lo ejecutamos sin 'await' para no bloquear la carga de la aplicación.
-  celularesService.initializeProductos().catch((error) => {
-    console.error('Error al inicializar productos en el arranque:', error)
-  })
+  celularesService
+    .initializeProductos()
+    .then(() => {
+      console.log('✅ Inicialización de productos completada')
+    })
+    .catch((error) => {
+      console.error('❌ Error al inicializar productos en el arranque:', error)
+    })
 })
 
 export { db }
