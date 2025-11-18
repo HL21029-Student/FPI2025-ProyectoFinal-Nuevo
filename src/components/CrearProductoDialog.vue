@@ -420,7 +420,6 @@ export default {
       'Samsung',
       'Apple',
       'Xiaomi',
-      'Huawei',
       'Motorola',
       'OnePlus',
       'Google',
