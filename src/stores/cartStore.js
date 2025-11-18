@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 
+// Clave para guardar y cargar el carrito desde el LocalStorage del navegador.
 const STORAGE_KEY = 'cartItems'
 
 function loadFromLocalStorage() {
@@ -8,10 +9,6 @@ function loadFromLocalStorage() {
   } catch {
     return []
   }
-}
-
-function saveToLocalStorage(items) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
 }
 
 export const useCartStore = defineStore('cart', {
@@ -23,7 +20,6 @@ export const useCartStore = defineStore('cart', {
       return state.cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
     },
     envio() {
-      // Using getter context via this to access other getters
       return this.subtotal > 500 ? 0 : 25
     },
     total() {
@@ -42,12 +38,10 @@ export const useCartStore = defineStore('cart', {
       } else {
         this.cartItems.push({ ...product, quantity: 1 })
       }
-      saveToLocalStorage(this.cartItems)
     },
     removeFromCart(index) {
       if (index < 0 || index >= this.cartItems.length) return
       this.cartItems.splice(index, 1)
-      saveToLocalStorage(this.cartItems)
     },
     updateQuantity(itemId, newQuantity) {
       const idx = this.cartItems.findIndex((i) => i.id === itemId)
@@ -57,11 +51,9 @@ export const useCartStore = defineStore('cart', {
         return
       }
       this.cartItems[idx].quantity = newQuantity
-      saveToLocalStorage(this.cartItems)
     },
     clearCart() {
       this.cartItems = []
-      saveToLocalStorage(this.cartItems)
     },
   },
 })

@@ -235,7 +235,7 @@
     </q-page-container>
 
     <!-- Diálogo para crear producto -->
-    <CrearProductoDialog v-model="showCrearProductoDialog" @productoCreado="cargarProductos" />
+    <CrearProductoDialog v-model="showCrearProductoDialog" @productoCreado="cargarProductos()" />
   </q-layout>
 </template>
 
@@ -305,7 +305,9 @@ export default {
     const cargarProductos = async () => {
       try {
         loading.value = true
+        console.log('🔄 Cargando productos desde Firebase...')
         const data = await celularesService.getCelulares()
+        console.log('✅ Productos recibidos:', data.length, data)
         products.value = data.map((p) => ({
           id: p.id,
           name: p.tituloAnuncio || 'Sin título',
@@ -319,10 +321,11 @@ export default {
           isNew: p.estado === 'nuevo',
           createdAt: p.fechaCreacion ? new Date(p.fechaCreacion).getTime() : 0,
         }))
+        console.log('📦 Productos mapeados:', products.value.length)
       } catch (error) {
-        console.error('Error cargando productos:', error)
+        console.error('❌ Error cargando productos:', error)
         $q.notify({
-          message: 'Error al cargar los productos',
+          message: 'Error al cargar los productos: ' + error.message,
           color: 'negative',
           position: 'top',
           icon: 'error',

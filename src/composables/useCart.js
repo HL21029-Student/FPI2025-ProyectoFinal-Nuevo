@@ -1,9 +1,10 @@
+import { computed } from 'vue'
 import { useQuasar } from 'quasar'
 import { useCartStore } from 'src/stores/cartStore'
 
-// Composable del carrito (adaptador sobre Pinia)
 export const useCart = () => {
   const $q = useQuasar()
+
   const store = useCartStore()
 
   const addToCart = (product) => {
@@ -68,14 +69,14 @@ export const useCart = () => {
   }
 
   return {
-    cartItems: store.cartItems,
+    cartItems: computed(() => store.cartItems),
     addToCart,
     removeFromCart,
     updateQuantity,
     clearCart,
-    subtotal: store.subtotal,
-    envio: store.envio,
-    total: store.total,
-    totalItems: store.totalItems,
+    subtotal: computed(() => store.subtotal),
+    envio: computed(() => store.envio),
+    total: computed(() => store.total),
+    totalItems: computed(() => store.totalItems),
   }
 }

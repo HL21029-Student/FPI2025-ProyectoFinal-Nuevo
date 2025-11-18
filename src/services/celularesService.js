@@ -12,7 +12,9 @@ export const celularesService = {
   async getCelulares() {
     try {
       loadingCelulares.value = true
+      console.log('📡 Conectando a Firebase...')
       const querySnapshot = await getDocs(celularesCollection())
+      console.log('📥 Documentos encontrados:', querySnapshot.docs.length)
       const productos = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -26,9 +28,10 @@ export const celularesService = {
       })
 
       celularesData.value = productos
+      console.log('✅ Productos cargados y ordenados:', productos.length)
       return productos
     } catch (error) {
-      console.error('Error obteniendo celulares:', error)
+      console.error('❌ Error obteniendo celulares:', error)
       throw error
     } finally {
       loadingCelulares.value = false
