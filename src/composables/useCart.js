@@ -17,23 +17,34 @@ export const useCart = () => {
       })
       return
     }
-    const existed = store.cartItems.find((i) => i.id === product.id)
+
+    const existingItem = store.cartItems.find((item) => item.id === product.id)
     store.addToCart(product)
-    $q.notify({
-      message: existed ? `Cantidad de ${product.name} aumentada` : `${product.name} agregado al carrito`,
-      color: 'positive',
-      icon: 'shopping_cart',
-      position: 'top',
-      timeout: 2000,
-    })
+    if (existingItem) {
+      $q.notify({
+        message: `Cantidad de ${product.name} aumentada`,
+        color: 'positive',
+        icon: 'shopping_cart',
+        position: 'top',
+        timeout: 2000,
+      })
+    } else {
+      $q.notify({
+        message: `${product.name} agregado al carrito`,
+        color: 'positive',
+        icon: 'shopping_cart',
+        position: 'top',
+        timeout: 2000,
+      })
+    }
   }
 
   const removeFromCart = (index) => {
-    const name = store.cartItems[index]?.name
+    const itemName = store.cartItems[index]?.name
     store.removeFromCart(index)
-    if (name) {
+    if (itemName) {
       $q.notify({
-        message: `${name} removido del carrito`,
+        message: `${itemName} removido del carrito`,
         color: 'info',
         icon: 'remove_shopping_cart',
         position: 'top',
@@ -42,11 +53,18 @@ export const useCart = () => {
     }
   }
 
-  const updateQuantity = (itemId, qty) => store.updateQuantity(itemId, qty)
+  const updateQuantity = (itemId, newQuantity) => {
+    store.updateQuantity(itemId, newQuantity)
+  }
 
   const clearCart = () => {
     store.clearCart()
-    $q.notify({ message: 'Carrito vaciado', color: 'info', icon: 'delete_sweep', position: 'top' })
+    $q.notify({
+      message: 'Carrito vaciado',
+      color: 'info',
+      icon: 'delete_sweep',
+      position: 'top',
+    })
   }
 
   return {

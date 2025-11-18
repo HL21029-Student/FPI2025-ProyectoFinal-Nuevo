@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 const STORAGE_KEY = 'cartItems'
 
-const load = () => {
+function loadFromLocalStorage() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
   } catch {
@@ -10,15 +10,20 @@ const load = () => {
   }
 }
 
-const save = (items) => localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+function saveToLocalStorage(items) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+}
 
 export const useCartStore = defineStore('cart', {
-  state: () => ({ cartItems: load() }),
+  state: () => ({
+    cartItems: loadFromLocalStorage(),
+  }),
   getters: {
     subtotal(state) {
       return state.cartItems.reduce((total, item) => total + item.price * item.quantity, 0)
     },
     envio() {
+      // Using getter context via this to access other getters
       return this.subtotal > 500 ? 0 : 25
     },
     total() {
@@ -37,26 +42,26 @@ export const useCartStore = defineStore('cart', {
       } else {
         this.cartItems.push({ ...product, quantity: 1 })
       }
-      save(this.cartItems)
+      saveToLocalStorage(this.cartItems)
     },
     removeFromCart(index) {
       if (index < 0 || index >= this.cartItems.length) return
       this.cartItems.splice(index, 1)
-      save(this.cartItems)
+      saveToLocalStorage(this.cartItems)
     },
-    updateQuantity(itemId, qty) {
+    updateQuantity(itemId, newQuantity) {
       const idx = this.cartItems.findIndex((i) => i.id === itemId)
       if (idx === -1) return
-      if (qty <= 0) {
+      if (newQuantity <= 0) {
         this.removeFromCart(idx)
         return
       }
-      this.cartItems[idx].quantity = qty
-      save(this.cartItems)
+      this.cartItems[idx].quantity = newQuantity
+      saveToLocalStorage(this.cartItems)
     },
     clearCart() {
       this.cartItems = []
-      save(this.cartItems)
+      saveToLocalStorage(this.cartItems)
     },
   },
 })
