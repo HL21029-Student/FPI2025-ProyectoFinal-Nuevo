@@ -6,7 +6,10 @@
       <q-list bordered separator>
         <q-item v-for="celular in celulares" :key="celular.id">
           <q-item-section avatar>
-            <q-img :src="celular.imagen" style="width: 80px; height: 80px; object-fit: cover" />
+            <q-img
+              :src="celular.imagen || celular.imagenes?.[0] || 'https://via.placeholder.com/80'"
+              style="width: 80px; height: 80px; object-fit: cover"
+            />
           </q-item-section>
           <q-item-section>
             <q-item-label>{{ celular.marca }} {{ celular.modelo }}</q-item-label>
@@ -22,29 +25,28 @@
 
 <script>
 import { defineComponent, ref, onMounted } from 'vue'
-import { celularesService } from 'src/services/celularesService'
+import { celularesService, celularesData, loadingCelulares } from 'src/services/celularesService'
 
 export default defineComponent({
   name: 'IndexPage',
   setup() {
-    const celulares = ref([])
-    const loading = ref(true)
     const error = ref(null)
 
     onMounted(async () => {
       try {
-        celulares.value = await celularesService.getCelulares()
+        // Solo cargar si no hay datos aún
+        if (celularesData.value.length === 0) {
+          await celularesService.getCelulares()
+        }
       } catch (err) {
         error.value = 'Error al cargar los productos: ' + err.message
         console.error(err)
-      } finally {
-        loading.value = false
       }
     })
 
     return {
-      celulares,
-      loading,
+      celulares: celularesData,
+      loading: loadingCelulares,
       error,
     }
   },

@@ -269,7 +269,9 @@ export default {
       'Motorola',
       'OnePlus',
       'Honor',
-      'Huawei',
+      'Nokia',
+      'Sony',
+      'LG',
       'Otro',
     ]
 

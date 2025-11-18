@@ -342,13 +342,24 @@ export default {
     }
 
     const procederPago = () => {
-      $q.notify({
-        message: '🎉 Procesando tu pedido...',
-        caption: 'Funcionalidad de pago en desarrollo',
-        color: 'warning',
-        icon: 'payment',
-        position: 'top',
-        timeout: 3000,
+      $q.dialog({
+        title: 'Confirmar Compra',
+        message: `¿Deseas confirmar tu compra por un total de $${total.value.toFixed(2)}?`,
+        cancel: { label: 'Cancelar', color: 'grey', flat: true },
+        ok: { label: 'Confirmar Compra', color: 'primary', unelevated: true },
+        persistent: true,
+      }).onOk(() => {
+        clearCart()
+        $q.notify({
+          message: '¡Compra realizada exitosamente!',
+          color: 'positive',
+          icon: 'check_circle',
+          position: 'top',
+          timeout: 3000,
+        })
+        setTimeout(() => {
+          router.push('/')
+        }, 1500)
       })
     }
 

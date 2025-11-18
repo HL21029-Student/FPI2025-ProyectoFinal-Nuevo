@@ -1,19 +1,37 @@
 import { db } from 'boot/firebase'
 import { collection, getDocs, addDoc, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore'
+import { ref } from 'vue'
 
 const celularesCollection = () => collection(db, 'celulares')
+
+// Estado reactivo global para los celulares
+export const celularesData = ref([])
+export const loadingCelulares = ref(false)
 
 export const celularesService = {
   async getCelulares() {
     try {
+      loadingCelulares.value = true
       const querySnapshot = await getDocs(celularesCollection())
-      return querySnapshot.docs.map((doc) => ({
+      const productos = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }))
+
+      // Ordenar por fecha de creación (más recientes primero)
+      productos.sort((a, b) => {
+        const fechaA = a.fechaCreacion ? new Date(a.fechaCreacion) : new Date(0)
+        const fechaB = b.fechaCreacion ? new Date(b.fechaCreacion) : new Date(0)
+        return fechaB - fechaA // Orden descendente (más reciente primero)
+      })
+
+      celularesData.value = productos
+      return productos
     } catch (error) {
       console.error('Error obteniendo celulares:', error)
       throw error
+    } finally {
+      loadingCelulares.value = false
     }
   },
 
@@ -160,7 +178,19 @@ export const celularesService = {
 
   async addCelular(celular) {
     try {
-      const docRef = await addDoc(celularesCollection(), celular)
+      // Agregar timestamp de creación
+      const celularConFecha = {
+        ...celular,
+        fechaCreacion: new Date().toISOString(),
+      }
+
+      const docRef = await addDoc(celularesCollection(), celularConFecha)
+      // Agregar el nuevo producto al estado reactivo inmediatamente
+      const nuevoProducto = {
+        id: docRef.id,
+        ...celularConFecha,
+      }
+      celularesData.value.unshift(nuevoProducto) // Agregar al inicio de la lista
       return docRef.id
     } catch (error) {
       console.error('Error agregando celular:', error)

@@ -317,6 +317,7 @@ export default {
           price: p.precio,
           image: p.imagen,
           isNew: p.estado === 'nuevo',
+          createdAt: p.fechaCreacion ? new Date(p.fechaCreacion).getTime() : 0,
         }))
       } catch (error) {
         console.error('Error cargando productos:', error)

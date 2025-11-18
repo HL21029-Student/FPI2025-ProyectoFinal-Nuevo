@@ -14,7 +14,7 @@
         </div>
       </q-card-section>
 
-      <q-card-section class="q-pa-md dialog-content-section">
+      <q-card-section class="q-pa-md dialog-content-section bg-grey-2">
         <!-- Layout responsive: columnas en desktop, filas en móvil -->
         <div class="row q-col-gutter-md" :class="$q.screen.lt.md ? 'flex-column' : ''">
           <!-- Columna izquierda: Especificaciones técnicas e imágenes -->
@@ -289,7 +289,7 @@
                     outlined
                     dense
                     required
-                    placeholder="21213-1212"
+                    placeholder="7777-8888"
                     bg-color="white"
                   />
                 </div>
@@ -363,7 +363,6 @@
 <script>
 import { ref, computed, watch } from 'vue'
 import { useQuasar } from 'quasar'
-import { useRouter } from 'vue-router'
 import { celularesService } from '../services/celularesService'
 
 export default {
@@ -376,11 +375,10 @@ export default {
     },
   },
 
-  emits: ['update:modelValue'],
+  emits: ['update:modelValue', 'productoCreado'],
 
   setup(props, { emit }) {
     const $q = useQuasar()
-    const router = useRouter()
 
     const showDialog = computed({
       get: () => props.modelValue,
@@ -524,14 +522,30 @@ export default {
       loading.value = true
 
       try {
-        form.value.pantalla = `${form.value.pantalla} pulgadas`
-        form.value.rom = `${form.value.rom} ${romUnit.value}`
-        form.value.ram = `${form.value.ram} GB`
-        form.value.imagenes = uploadedFiles.value.map((file) => file.preview)
-        await celularesService.addCelular(form.value)
+        // Crear copia del formulario con los valores formateados
+        const productoData = {
+          estado: form.value.estado,
+          marca: form.value.marca,
+          modelo: form.value.modelo,
+          pantalla: `${form.value.pantalla} pulgadas`,
+          sistemaOperativo: form.value.sistemaOperativo,
+          rom: `${form.value.rom} ${romUnit.value}`,
+          ram: `${form.value.ram} GB`,
+          tituloAnuncio: form.value.tituloAnuncio,
+          nombreVendedor: form.value.nombreVendedor,
+          telefono: form.value.telefono,
+          descripcion: form.value.descripcion,
+          precio: Number(form.value.precio),
+          imagenes: uploadedFiles.value.map((file) => file.preview),
+          imagen: uploadedFiles.value[0]?.preview || '',
+        }
+
+        // El servicio ahora actualiza automáticamente la lista reactiva
+        await celularesService.addCelular(productoData)
 
         $q.notify({
           message: '✅ Producto creado exitosamente',
+          caption: 'El producto se ha agregado a la lista',
           color: 'positive',
           icon: 'check_circle',
           position: 'top',
@@ -540,7 +554,9 @@ export default {
 
         resetForm()
         showDialog.value = false
-        router.push('/')
+
+        // Emitir evento para notificar al componente padre
+        emit('productoCreado')
       } catch (error) {
         console.error('Error creando producto:', error)
         $q.notify({
