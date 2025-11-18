@@ -177,10 +177,22 @@ export default defineComponent({
           filtered.sort((a, b) => b.price - a.price)
           break
         case 'Fecha: Más Reciente':
-          filtered.sort((a, b) => b.id.localeCompare(a.id))
+          // Ordenar por timestamp si existe, si no por id para compatibilidad
+          filtered.sort((a, b) => {
+            const aTime = typeof a.createdAt === 'number' ? a.createdAt : -Infinity
+            const bTime = typeof b.createdAt === 'number' ? b.createdAt : -Infinity
+            if (aTime !== bTime) return bTime - aTime
+            // Fallback estable por id
+            return String(b.id).localeCompare(String(a.id))
+          })
           break
         case 'Fecha: Más Antiguo':
-          filtered.sort((a, b) => a.id.localeCompare(b.id))
+          filtered.sort((a, b) => {
+            const aTime = typeof a.createdAt === 'number' ? a.createdAt : Infinity
+            const bTime = typeof b.createdAt === 'number' ? b.createdAt : Infinity
+            if (aTime !== bTime) return aTime - bTime
+            return String(a.id).localeCompare(String(b.id))
+          })
           break
         default:
           break

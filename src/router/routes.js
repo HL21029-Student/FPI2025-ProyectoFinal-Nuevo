@@ -15,7 +15,10 @@ const routes = [
     path: '/carrito',
     component: () => import('pages/CarritoPage.vue'),
   },
-
+  {
+    path: '/crear-anuncio', // NUEVA RUTA PARA MÓVIL
+    component: () => import('pages/CrearAnuncioPage.vue'),
+  },
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
